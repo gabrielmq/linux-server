@@ -2,7 +2,9 @@
 
 Este projeto é um tutorial para configurar um servidor remoto hospedado na AWS [Lightsail](https://aws.amazon.com/pt/lightsail/), fazendo com que este servidor remoto disponibilize uma aplicação [web](https://github.com/gabrielmq/catalogo-itens) desenvolvida em python.
 
-## Passo 1 - Acessando o servidor via SSH
+## Configurando uma instancia AWS Lightsail
+
+### Passo 1 - Acessando o servidor via SSH
 
 - Faça o download da chave SSH localizada nas configurações de conta da Amazon Lightsail.
 - Após realizar o download, mova o arquivo para o diretório `.ssh`.
@@ -10,7 +12,7 @@ Este projeto é um tutorial para configurar um servidor remoto hospedado na AWS 
 - No prompt de comandos execute o comando `sudo chmod 600 ~/.ssh/lightsail-key.pem`
 - Ainda no prompt de comandos execute o comando `ssh -i ~/.ssh/lightsail-key.pem ubuntu@18.212.212.133` para se conectar ao servidor.
 
-## Passo 2 - Atualizando os pacotes do servidor e configurando time zone UTC
+### Passo 2 - Atualizando os pacotes do servidor e configurando time zone UTC
 
 ```
    sudo apt-get update
@@ -19,7 +21,7 @@ Este projeto é um tutorial para configurar um servidor remoto hospedado na AWS 
    sudo timedatectl set-timezone UTC
 ```
 
-## Passo 3 - Configurando usuário grader
+### Passo 3 - Configurando usuário grader
 
 - Execute os comandos abaixo para criar o usuário grader
 
@@ -28,7 +30,7 @@ sudo adduser grader
 sudo usermod -a -G sudo grader
 ```
 
-## Passo 4 - Configurando chaves SSH para usuário grader
+### Passo 4 - Configurando chaves SSH para usuário grader
 
 - Gere as chaves ssh localmente executando o comando `ssh-keygen` e salve no diretório `~/.ssh`
 - Configure a chave pública no servidor remoto
@@ -45,14 +47,14 @@ sudo chmod 644 .ssh/authorized_keys
 
 - Agora já é possível utilizar o comando `ssh -i ~/.ssh/grader_key grader@18.207.168.11` para acessar o servidor com o novo usuário.
 
-## Passo 5 - Removendo acesso para usuário root
+### Passo 5 - Removendo acesso para usuário root
 
 - Execute o comando `sudo nano /etc/ssh/sshd_config`
 - Altere a linha `PermitRootLogin prohibit-password` para `PermitRootLogin no`
 - Altere a linha `PasswordAuthentication yes` para  `PasswordAuthentication no`
 - Adicione `DenyUsers root`
 
-## Passo 6 - Alterar porta SSH de 22 para 2200  
+### Passo 6 - Alterar porta SSH de 22 para 2200  
 
 - Nas configurações de rede do servidor na AWS LightSail, configure uma porta personalizada no Firewall como: `Custom/TCP 2200`
 - Remova a configuração padrão de SSH
@@ -64,7 +66,7 @@ sudo nano /etc/ssh/sshd_config
 
 - Execute o comando `sudo service ssh restart` para reinicializar o serviço.
 
-## Passo 7 - Configurando Firewall
+### Passo 7 - Configurando Firewall
 
 ```
 sudo ufw status # verifica o estado do firewall
@@ -76,6 +78,78 @@ sudo ufw allow ntp
 sudo ufw enable # habilita o firewall
 sudo ufw status
 ```
+
+## Realizando deploy da aplicação no servidor 
+
+### Passo 1 - Configurando APACHE para servir uma aplicação Python mod_wsgi
+
+- Logado com o usuário grader, execute os comandos
+```
+sudo apt-get install apache2
+sudo apt-get install libapache2-mod-wsgi-py3 python3-dev
+sudo service apache2 restart
+```
+
+### Passo 2 - Configurando o PostgreSQL
+
+- Execute os passos abaixo para instalar e configurar um banco de dados PostgreSql
+
+```
+sudo apt-get install postgresql
+sudo su - postgres
+```
+
+- Execute o comando `psql` para entrar no shell do Postgres e digite os seguintes comandos:
+
+```
+postgres=# CREATE DATABASE catalogo;
+postgres=# CREATE USER grader;
+postgres=# ALTER ROLE grader WITH PASSWORD 'udacity';
+postgres=# GRANT ALL PRIVILEGES ON DATABASE catalogo TO grader;
+postgres=# \q
+```
+
+- Execute o comando `exit` para sair do usuário postgress
+
+### Passo 3 - Instalando Git e clonando projeto
+
+```
+sudo apt-get install git
+cd /var/www
+sudo mkdir FlaskApp
+cd FlaskApp/
+sudo git clone https://github.com/gabrielmq/catalogo-itens.git
+sudo mv ./catalogo-itens ./catalogo
+cd catalogo/
+```
+
+### Passo 4 - Configurando aplicação
+
+- Execute o comando `export DATABASE_URL="postgresql://grader:udacity@localhost/catalogo"` para criar uma variável de ambiente
+- Altere a variável `SQLALCHEMY_DATABASE_URI` no arquivo `config.py`
+
+```
+SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+```
+
+- Instale o pip
+
+```
+sudo apt-get install python3-pip
+sudo python3 -m pip install --upgrade pip
+sudo apt-get install libpq-dev python3-dev 
+```
+
+- Instale as dependências do projeto executando o comando `sudo pip3 install -r requirements.txt`
+- Instale a lib psycopg2 executando o comando `sudo pip3 install psycopg2`
+
+## Referências
+
+- https://sempreupdate.com.br/como-conceder-e-remover-privilegios-sudo-no-ubuntu/
+- https://realpython.com/flask-by-example-part-2-postgres-sqlalchemy-and-alembic/
+- https://askubuntu.com/questions/27559/how-do-i-disable-remote-ssh-login-as-root-from-a-server
+- https://github.com/andrevst/fsnd-p6-linux-server-configuration
+- https://github.com/adityamehra/udacity-linux-server-configuration
 
 # Licensa
 
