@@ -34,15 +34,48 @@ sudo usermod -a -G sudo grader
 - Configure a chave pública no servidor remoto
 
 ```
-sudo mkdir /home/grader/.ssh
-sudo chown grader:grader /home/grader/.ssh
-sudo touch /home/grader/.ssh/authorized_keys
-sudo nano /home/grader/.ssh/authorized_keys #cole o valor da chave.pub
-sudo chmod 700 /home/grader/.ssh
-sudo chmod 644 /home/grader/.ssh/authorized_keys
+su - grader # para mudar de usuário
+sudo mkdir .ssh/
+sudo chown grader:grader .ssh/
+sudo touch .ssh/authorized_keys
+sudo nano .ssh/authorized_keys #cole o valor da chave.pub
+sudo chmod 700 .ssh
+sudo chmod 644 .ssh/authorized_keys
 ```
 
 - Agora já é possível utilizar o comando `ssh -i ~/.ssh/grader_key grader@18.207.168.11` para acessar o servidor com o novo usuário.
+
+## Passo 5 - Removendo acesso para usuário root
+
+- Execute o comando `sudo nano /etc/ssh/sshd_config`
+- Altere a linha `PermitRootLogin prohibit-password` para `PermitRootLogin no`
+- Altere a linha `PasswordAuthentication yes` para  `PasswordAuthentication no`
+- Adicione `DenyUsers root`
+
+## Passo 6 - Alterar porta SSH de 22 para 2200  
+
+- Nas configurações de rede do servidor na AWS LightSail, configure uma porta personalizada no Firewall como: `Custom/TCP 2200`
+- Remova a configuração padrão de SSH
+- Conectado no servidor remoto pelo prompt execute o comando abaixo e altere a porta de 22 para 2200
+
+```
+sudo nano /etc/ssh/sshd_config
+```
+
+- Execute o comando `sudo service ssh restart` para reinicializar o serviço.
+
+## Passo 7 - Configurando Firewall
+
+```
+sudo ufw status # verifica o estado do firewall
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 2200/tcp
+sudo ufw allow www 
+sudo ufw allow ntp
+sudo ufw enable # habilita o firewall
+sudo ufw status
+```
 
 # Licensa
 
