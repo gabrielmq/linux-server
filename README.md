@@ -55,7 +55,7 @@ sudo chmod 700 .ssh
 sudo chmod 644 .ssh/authorized_keys
 ```
 
-- Agora já é possível utilizar o comando `ssh -i ~/.ssh/grader_key grader@18.207.168.11` para acessar o servidor com o novo usuário.
+- Agora já é possível utilizar o comando `ssh -i ~/.ssh/grader_key grader@52.91.50.185 ` para acessar o servidor com o novo usuário.
 
 ### Passo 6 - Removendo acesso para usuário root
 
@@ -86,7 +86,7 @@ sudo ufw allow 2200/tcp
 sudo ufw allow www
 sudo ufw allow ntp
 sudo ufw enable # habilita o firewall
-sudo ufw status
+sudo ufw status # valida se o firewall foi ativado
 ```
 
 ## Realizando deploy da aplicação no servidor
@@ -139,7 +139,7 @@ sudo git clone https://github.com/gabrielmq/catalogo-itens.git
 sudo mv ./catalogo-itens ./catalogo && cd catalogo/
 ```
 
-### Passo 4 - Configurando aplicação
+### Passo 4 - Configurando ambiente e a aplicação
 
 - Execute o comando `export DATABASE_URL="postgresql://grader:udacity@localhost/catalogo"` para criar uma variável de ambiente
 - Altere as variáveis `SQLALCHEMY_DATABASE_URI` e `OAUTH_CREDENTIALS` no arquivo `config.py`
@@ -159,21 +159,25 @@ OAUTH_CREDENTIALS = {
     }
 ```
 
-_Adicione o endereço http://52.91.244.155.xip.io nas configurações de JavaScript Origins no Console de desenvolvedor do Google_
+_Adicione o endereço http://52.91.50.185.xip.io nas configurações de JavaScript Origins no Console de desenvolvedor do Google_
 
-- Instale o pip
+- Instale o pip e o virtualenv
 
 ```
 sudo apt-get install python3-pip
 sudo python3 -m pip install --upgrade pip
+sudo pip3 install virtualenv
+sudo virtualenv venv
+source venv/bin/activate  
 ```
 
 - Instale as dependências do projeto executando o comando `sudo pip3 install --upgrade -r requirements.txt`
-- Instale a lib psycopg2 executando
+- Instale a lib psycopg2 e rauth
 
 ```
 sudo apt-get install libpq-dev python3-dev
 sudo pip3 install psycopg2
+sudo pip install rauth
 ```
 
 ### Passo 5 - Configurando e habilitando Virtual Host
@@ -188,8 +192,8 @@ sudo nano /etc/apache2/sites-available/catalogo.conf
 
 ```
 <VirtualHost *:80>
-	ServerName 52.91.244.155
-   ServerAlias 52.91.244.155.xip.io
+	ServerName 52.91.50.185
+    ServerAlias 52.91.50.185.xip.io
 	WSGIScriptAlias / /var/www/FlaskApp/catalogo.wsgi
 	<Directory /var/www/FlaskApp/catalogo/>
 		Order allow,deny
@@ -222,17 +226,22 @@ sudo nano catalogo.wsgi
 
 import sys
 import logging
+
 logging.basicConfig(stream=sys.stderr)
 sys.path.insert(0,"/var/www/FlaskApp/catalogo")
 
-from app import app as application
-application.secret_key='secret_key'
+activate_this = '/var/www/FlaskApp/catalogo/venv/bin/activate_this.py'
+with open(activate_this) as file_:
+    exec(file_.read(), dict(__file__=activate_this))
+
+from run import manager as application
 ```
 
 - Reinicie o apache executando `sudo service apache2 restart`
 
 ## Referências
 
+- https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vps
 - https://sempreupdate.com.br/como-conceder-e-remover-privilegios-sudo-no-ubuntu/
 - https://realpython.com/flask-by-example-part-2-postgres-sqlalchemy-and-alembic/
 - https://askubuntu.com/questions/27559/how-do-i-disable-remote-ssh-login-as-root-from-a-server
