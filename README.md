@@ -55,7 +55,7 @@ sudo chmod 700 .ssh
 sudo chmod 644 .ssh/authorized_keys
 ```
 
-- Agora já é possível utilizar o comando `ssh -i ~/.ssh/grader_key grader@52.91.50.185 ` para acessar o servidor com o novo usuário.
+- Agora já é possível utilizar o comando `ssh -i ~/.ssh/grader_key grader@52.91.50.185` para acessar o servidor com o novo usuário.
 
 ### Passo 6 - Removendo acesso para usuário root
 
@@ -141,11 +141,10 @@ sudo mv ./catalogo-itens ./catalogo && cd catalogo/
 
 ### Passo 4 - Configurando ambiente e a aplicação
 
-- Execute o comando `export DATABASE_URL="postgresql://grader:udacity@localhost/catalogo"` para criar uma variável de ambiente
 - Altere as variáveis `SQLALCHEMY_DATABASE_URI` e `OAUTH_CREDENTIALS` no arquivo `config.py`
 
 ```
-SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+SQLALCHEMY_DATABASE_URI = "postgresql://grader:udacity@localhost/catalogo"
 # altere your_app_id e your_app_secret pelas respectivas secret keys
 OAUTH_CREDENTIALS = {
         "google": {
@@ -159,7 +158,7 @@ OAUTH_CREDENTIALS = {
     }
 ```
 
-_Adicione o endereço http://52.91.50.185.xip.io nas configurações de JavaScript Origins no Console de desenvolvedor do Google_
+_Adicione o endereço http://54.161.1.203.xip.io nas configurações de JavaScript Origins no Console de desenvolvedor do Google_
 
 - Instale o pip e o virtualenv
 
@@ -168,16 +167,21 @@ sudo apt-get install python3-pip
 sudo python3 -m pip install --upgrade pip
 sudo pip3 install virtualenv
 sudo virtualenv venv
-source venv/bin/activate  
+source venv/bin/activate
 ```
 
-- Instale as dependências do projeto executando o comando `sudo pip3 install --upgrade -r requirements.txt`
-- Instale a lib psycopg2 e rauth
+- Instale as dependências do projeto executando o comando `sudo venv/bin/pip3 install --upgrade -r requirements.txt`
+- Instale psycopg2
 
 ```
 sudo apt-get install libpq-dev python3-dev
-sudo pip3 install psycopg2
-sudo pip install rauth
+sudo venv/bin/pip3 install psycopg2
+```
+
+- Configure a variável de ambiente do flask
+
+```
+echo "export FLASK_APP=run.py" >> ~/.profile
 ```
 
 ### Passo 5 - Configurando e habilitando Virtual Host
@@ -199,8 +203,8 @@ sudo nano /etc/apache2/sites-available/catalogo.conf
 		Order allow,deny
 		Allow from all
 	</Directory>
-	Alias /static /var/www/FlaskApp/catalogo/static
-	<Directory /var/www/FlaskApp/catalogo/static/>
+	Alias /static /var/www/FlaskApp/catalogo/app/static
+	<Directory /var/www/FlaskApp/catalogo/app/>static/>
 		Order allow,deny
 		Allow from all
 	</Directory>
@@ -234,10 +238,12 @@ activate_this = '/var/www/FlaskApp/catalogo/venv/bin/activate_this.py'
 with open(activate_this) as file_:
     exec(file_.read(), dict(__file__=activate_this))
 
-from run import manager as application
+from run import app as application
 ```
 
 - Reinicie o apache executando `sudo service apache2 restart`
+- Para monitorar o log do apache execute `sudo tail -f /var/log/apache2/error.log`
+- Para acessar a aplicação [http://54.161.1.203.xip.io](http://54.161.1.203.xip.io)
 
 ## Referências
 
