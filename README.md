@@ -145,13 +145,10 @@ sudo mv ./catalogo-itens ./catalogo && cd catalogo/
 
 ```
 SQLALCHEMY_DATABASE_URI = "postgresql://grader:udacity@localhost/catalogo"
-# altere your_app_id e your_app_secret pelas respectivas secret keys
+
+# altere your_app_id e your_app_secret pelas chaves do google
 OAUTH_CREDENTIALS = {
         "google": {
-            "id": "your_app_id",
-            "secret": "your_app_secret"
-        },
-        "facebook": {
             "id": "your_app_id",
             "secret": "your_app_secret"
         }
@@ -196,8 +193,8 @@ sudo nano /etc/apache2/sites-available/catalogo.conf
 
 ```
 <VirtualHost *:80>
-	ServerName 52.91.50.185
-    ServerAlias 52.91.50.185.xip.io
+	ServerName 54.161.1.203
+    ServerAlias 54.161.1.203.xip.io
 	WSGIScriptAlias / /var/www/FlaskApp/catalogo.wsgi
 	<Directory /var/www/FlaskApp/catalogo/>
 		Order allow,deny
@@ -243,7 +240,30 @@ from run import app as application
 
 - Reinicie o apache executando `sudo service apache2 restart`
 - Para monitorar o log do apache execute `sudo tail -f /var/log/apache2/error.log`
-- Para acessar a aplicação [http://54.161.1.203.xip.io](http://54.161.1.203.xip.io)
+
+### Passo 7 - Testando a aplicação
+
+Abra o navegador e acesse o endpoint [http://54.161.1.203.xip.io/api/categorias/all](http://54.161.1.203.xip.io/api/categorias/all), o retorno deve ser igual o JSON abaixo
+```
+{
+  "categoria": [
+    {
+      "id": 1, 
+      "nome": "Soccer"
+    }, 
+    ...
+    {
+      "id": 8, 
+      "nome": "Skating"
+    }, 
+    {
+      "id": 9, 
+      "nome": "Hockey"
+    }
+  ]
+}
+```
+Após testar o endpoint acesse [http://54.161.1.203.xip.io](http://54.161.1.203.xip.io) para ter acesso a aplicação e cadastrar novos itens depois de logado.
 
 ## Referências
 
