@@ -20,7 +20,7 @@ Este projeto é um tutorial para configurar um servidor remoto hospedado na AWS 
 - Após realizar o download, mova o arquivo para o diretório `.ssh`.
   - Exemplo: `sudo mv ~/Downloads/lightsail-key.pem ~/.ssh`.
 - No prompt de comandos execute o comando `sudo chmod 600 ~/.ssh/lightsail-key.pem`
-- Ainda no prompt de comandos execute o comando `ssh -i ~/.ssh/lightsail-key.pem ubuntu@18.212.212.133` para se conectar ao servidor.
+- Ainda no prompt de comandos execute o comando `ssh -i ~/.ssh/lightsail-key.pem ubuntu@<ip_server>` para se conectar ao servidor.
 
 ### Passo 3 - Atualizando os pacotes do servidor e configurando time zone UTC
 
@@ -55,7 +55,7 @@ sudo chmod 700 .ssh
 sudo chmod 644 .ssh/authorized_keys
 ```
 
-- Agora já é possível utilizar o comando `ssh -i ~/.ssh/grader_key grader@52.91.50.185` para acessar o servidor com o novo usuário.
+- Agora já é possível utilizar o comando `ssh -i ~/.ssh/grader_key grader@<ip_server>` para acessar o servidor com o novo usuário.
 
 ### Passo 6 - Removendo acesso para usuário root
 
@@ -155,7 +155,7 @@ OAUTH_CREDENTIALS = {
     }
 ```
 
-_Adicione o endereço http://54.161.1.203.xip.io nas configurações de JavaScript Origins no Console de desenvolvedor do Google_
+_Adicione o endereço http://<ip_server>.xip.io nas configurações de JavaScript Origins e dominios liberados no Console de desenvolvedor do Google_
 
 - Instale o pip e o virtualenv
 
@@ -193,8 +193,8 @@ sudo nano /etc/apache2/sites-available/catalogo.conf
 
 ```
 <VirtualHost *:80>
-	ServerName 54.161.1.203
-    ServerAlias 54.161.1.203.xip.io
+	ServerName <ip_server>
+    ServerAlias <ip_server>.xip.io
 	WSGIScriptAlias / /var/www/FlaskApp/catalogo.wsgi
 	<Directory /var/www/FlaskApp/catalogo/>
 		Order allow,deny
@@ -243,7 +243,7 @@ from run import app as application
 
 ### Passo 7 - Testando a aplicação
 
-Abra o navegador e acesse o endpoint [http://54.161.1.203.xip.io/api/categorias/all](http://54.161.1.203.xip.io/api/categorias/all), o retorno deve ser igual o JSON abaixo
+Abra o navegador e acesse o endpoint http://<ip_server>.xip.io/api/categorias/all, o retorno deve ser igual o JSON abaixo
 ```
 {
   "categoria": [
@@ -263,7 +263,7 @@ Abra o navegador e acesse o endpoint [http://54.161.1.203.xip.io/api/categorias/
   ]
 }
 ```
-Após testar o endpoint acesse [http://54.161.1.203.xip.io](http://54.161.1.203.xip.io) para ter acesso a aplicação e cadastrar novos itens depois de logado.
+Após testar o endpoint acesse http://<ip_server>.xip.io para ter acesso a aplicação e cadastrar novos itens depois de logado.
 
 ## Referências
 
@@ -273,6 +273,8 @@ Após testar o endpoint acesse [http://54.161.1.203.xip.io](http://54.161.1.203.
 - https://askubuntu.com/questions/27559/how-do-i-disable-remote-ssh-login-as-root-from-a-server
 - https://github.com/andrevst/fsnd-p6-linux-server-configuration
 - https://github.com/adityamehra/udacity-linux-server-configuration
+- https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xvii-deployment-on-linux
+- https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-iv-database
 
 # Licensa
 
