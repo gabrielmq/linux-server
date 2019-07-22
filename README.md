@@ -2,6 +2,14 @@
 
 Este projeto é um tutorial para configurar um servidor remoto hospedado na AWS [Lightsail](https://aws.amazon.com/pt/lightsail/), fazendo com que este servidor remoto disponibilize uma aplicação [web](https://github.com/gabrielmq/catalogo-itens) desenvolvida em python.
 
+IP: 54.161.1.203
+
+Porta SSH: 2200
+
+Usuário: grader
+
+URL: http://54.161.1.203.xip.io
+
 ## Configurando uma instancia AWS Lightsail
 
 ### Passo 1 - Criando uma instância de servidor na AWS Lightsail
