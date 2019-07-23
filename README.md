@@ -39,6 +39,33 @@ URL: http://54.161.1.203.xip.io
    sudo timedatectl set-timezone UTC
 ```
 
+- Configure o update automático dos pacotes 
+
+```
+sudo apt install unattended-upgrades
+```
+
+- Altere o arquivo `sudo nano /etc/apt/apt.conf.d/50unattended-upgrades` removendo comentário.
+
+```
+Unattended-Upgrade::Allowed-Origins {
+        "${distro_id}:${distro_codename}";
+        "${distro_id}:${distro_codename}-security";
+//      "${distro_id}:${distro_codename}-updates"; # descomente essa linha
+//      "${distro_id}:${distro_codename}-proposed";
+//      "${distro_id}:${distro_codename}-backports";
+};
+```
+
+- Altere o arquivo `sudo nano /etc/apt/apt.conf.d/20auto-upgrades` adicionando:
+
+```
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+```
+
+- Execute o comando `sudo dpkg-reconfigure --priority=low unattended-upgrades` para habilitar a atualização automática dos pacotes.
+
 ### Passo 4 - Configurando usuário grader
 
 - Execute os comandos abaixo para criar o usuário grader
@@ -275,6 +302,7 @@ Após testar o endpoint acesse http://<ip_server>.xip.io para ter acesso a aplic
 
 ## Referências
 
+- https://help.ubuntu.com/community/AutomaticSecurityUpdates
 - https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vps
 - https://sempreupdate.com.br/como-conceder-e-remover-privilegios-sudo-no-ubuntu/
 - https://realpython.com/flask-by-example-part-2-postgres-sqlalchemy-and-alembic/
