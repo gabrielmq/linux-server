@@ -39,7 +39,7 @@ URL: http://54.161.1.203.xip.io
    sudo timedatectl set-timezone UTC
 ```
 
-- Configure o update automático dos pacotes 
+- Configure o update automático dos pacotes
 
 ```
 sudo apt install unattended-upgrades
@@ -87,7 +87,7 @@ sudo chown grader:grader .ssh/
 sudo touch .ssh/authorized_keys
 sudo nano .ssh/authorized_keys #cole o valor da chave.pub
 sudo chmod 700 .ssh
-sudo chmod 644 .ssh/authorized_keys
+sudo chmod 600 .ssh/authorized_keys
 ```
 
 - Agora já é possível utilizar o comando `ssh -i ~/.ssh/grader_key grader@<ip_server>` para acessar o servidor com o novo usuário.
@@ -279,25 +279,27 @@ from run import app as application
 ### Passo 7 - Testando a aplicação
 
 Abra o navegador e acesse o endpoint http://<ip_server>.xip.io/api/categorias/all, o retorno deve ser igual o JSON abaixo
+
 ```
 {
   "categoria": [
     {
-      "id": 1, 
+      "id": 1,
       "nome": "Soccer"
-    }, 
+    },
     ...
     {
-      "id": 8, 
+      "id": 8,
       "nome": "Skating"
-    }, 
+    },
     {
-      "id": 9, 
+      "id": 9,
       "nome": "Hockey"
     }
   ]
 }
 ```
+
 Após testar o endpoint acesse http://<ip_server>.xip.io para ter acesso a aplicação e cadastrar novos itens depois de logado.
 
 ## Referências
